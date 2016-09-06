@@ -580,6 +580,7 @@ class elasticsearch(
 
 
   if $repo_stage {
+      #need this earlier
       if !(defined(Stage[$repo_stage])) {
         stage { $repo_stage:  before => Stage['main'] }
       }
