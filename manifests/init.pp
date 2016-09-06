@@ -578,9 +578,24 @@ class elasticsearch(
     -> Class['elasticsearch::package']
   }
 
+
+  if $repo_stage {
+      if !(defined(Stage[$repo_stage])) {
+        stage { $repo_stage:  before => Stage['main'] }
+      }
+  }
+
+
   if $package_pin {
-    class { 'elasticsearch::package::pin':
-      before => Class['elasticsearch::package'],
+    if ($repo_stage == false) {
+      class { 'elasticsearch::package::pin':
+        before => Class['elasticsearch::package'],
+      }
+    } else {
+      class { 'elasticsearch::package::pin':
+        before => Class['elasticsearch::package'],
+        stage  => $repo_stage,
+      }
     }
   }
 
@@ -600,10 +615,6 @@ class elasticsearch(
 
     } else {
       # use staging for ordering
-
-      if !(defined(Stage[$repo_stage])) {
-        stage { $repo_stage:  before => Stage['main'] }
-      }
 
       class { 'elasticsearch::repo':
         stage => $repo_stage,
