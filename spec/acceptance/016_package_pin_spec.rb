@@ -38,6 +38,44 @@ if fact('osfamily') != 'Suse'
       end
     end
 
+
+    describe 'initial installation using stages' do
+      describe 'manifest' do
+        pp = <<-EOS
+          class { 'elasticsearch':
+            config => {
+              'cluster.name' => '#{test_settings['cluster_name']}'
+            },
+            manage_repo => true,
+            repo_version => '#{test_settings['repo_version']}',
+            repo_stage => 'setup',
+            version => '#{test_settings['install_package_version']}',
+            java_install => true
+          }
+
+          elasticsearch::instance { 'es-01':
+            config => {
+              'node.name' => 'elasticsearch001',
+              'http.port' => '#{test_settings['port_a']}'
+            }
+          }
+        EOS
+
+        it 'applies cleanly' do
+          apply_manifest pp, :catch_failures => true
+        end
+        it 'is idempotent' do
+          apply_manifest pp , :catch_changes  => true
+        end
+      end
+
+      describe package(test_settings['package_name']) do
+        it do
+          should be_installed.with_version(test_settings['install_version'])
+        end
+      end
+    end
+
     describe 'package manager upgrade' do
       it 'should run successfully' do
         case fact('osfamily')
