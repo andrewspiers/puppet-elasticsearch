@@ -12,7 +12,7 @@ if fact('osfamily') != 'Suse'
             manage_repo => true,
             repo_version => '#{test_settings['repo_version']}',
             version => '#{test_settings['install_package_version']}',
-            java_install => true
+            java_install => false
           }
 
           elasticsearch::instance { 'es-01':
